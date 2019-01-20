@@ -1,22 +1,37 @@
-import * as express from "express";
-import * as bodyParser from "body-parser";
+import {URL} from '../assets/globals';
+import {IComplexRule} from './models/rule/complex-rule';
+import {OrdersService} from './services/orders-service';
+import {RulesService} from './services/rules-service';
+import {ValidateService} from './services/validate-service';
 
-class App {
-
-    public app: express.Application;
+export class App {
+    private rulesService: RulesService;
+    private ordersService: OrdersService;
+    private validateService: ValidateService;
 
     constructor() {
-        this.app = express();
-        this.config();
+        this.initService();
+        const frauds = this.countFrauds();
+        console.log(`The number of frauds is ${frauds}`);
     }
 
-    private config(): void{
-        // support application/json type post data
-        this.app.use(bodyParser.json());
-        //support application/x-www-form-urlencoded post data
-        this.app.use(bodyParser.urlencoded({ extended: false }));
+    private initService(): void {
+        this.rulesService = new RulesService();
+        this.ordersService = new OrdersService();
+        const rules: IComplexRule = this.rulesService.getRules();
+        this.validateService = new ValidateService(rules);
     }
 
+    private countFrauds(): number {
+        const allOrders = this.ordersService.getAllOrders(URL);
+        let frauds = 0;
+
+        for (const order of allOrders) {
+            if (!this.validateService.validate(order)) {
+                frauds++;
+            }
+        }
+
+        return frauds;
+    }
 }
-
-export default new App().app;

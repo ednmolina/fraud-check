@@ -6,12 +6,16 @@
     "sourceMap": true,
     "target": "es6",
     "outDir": "./dist",
-    "baseUrl": "./lib"
+    "baseUrl": "./lib",
+    "typeRoots": [
+      "./node_modules/@types"
+    ]
   },
   "include": [
-    "lib/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }
